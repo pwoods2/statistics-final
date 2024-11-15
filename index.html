@@ -8,9 +8,8 @@
 </head>
 <body>
 
-    <!-- Scrolling Header with Centered Logo and Adjusted Nav Groups -->
+    <!-- Scrolling Header with Centered Logo and Adjusted Navigation -->
     <div class="scrolling-header">
-        <!-- Left navigation group -->
         <div class="nav-left">
             <div class="dropdown">
                 <button class="dropbtn">Home</button>
@@ -33,17 +32,15 @@
                     <a href="#inobs">Influential Observations</a>
                     <a href="#modelimp">Model Improvement</a>
                     <a href="#inteffects">Interaction Effects</a>
-                    <a href="#modeval">Model Evaluation and Selection References</a>
+                    <a href="#modeval">Model Evaluation and Selection</a>
                 </div>
             </div>
         </div>
 
-        <!-- Logo centered in the header -->
         <div class="header-logo">
             <img src="images/sturgeon.png" alt="White Sturgeon">
         </div>
 
-        <!-- Right navigation group -->
         <div class="nav-right">
             <div class="dropdown">
                 <button class="dropbtn">Book</button>
@@ -63,32 +60,21 @@
 
     <!-- Main Content Section -->
     <div id="content">
-        <!-- Home page -->
         <div id="home" class="content-section">
-            <h2>Generating this site so you can study.</h2>
-            <div class="container">
-                <div class="item">
-                    <p>On this site, you've got all the modules, as well as additional chapter readings I think might help, 
-                    and YouTube videos to clarify some topics.</p>
-                </div>
-            </div>
+            <h2>Welcome</h2>
+            <p>This site is designed to help you study regression topics, with modules, readings, and videos to support your learning.</p>
         </div>
 
-        <!-- Course Overview -->
         <div id="courseoverview" class="content-section">
             <h2>What is this course about?</h2>
-            <p>This course is specifically <strong>Elements of Regression</strong>, which is defined
-            as "an analytics procedure that can generate predictions by using an easily interpreted mathematical formula." 
-            In simpler terms, linear regression is <i>what</i> we do to make the data easier to understand.</p>
+            <p><strong>Elements of Regression</strong> focuses on analytics to generate predictions using linear regression for easier data interpretation.</p>
         </div>
 
-        <!-- Getting Started -->
         <div id="gettingstarted" class="content-section">
             <h2>Getting Started and Review</h2>
-            <p>On your professor's site, there is decent background into what regression is and its uses in data science.</p>
+            <p>Refer to your professor's site for an introduction to regression and its applications in data science.</p>
         </div>
 
-        <!-- Modules -->
         <div id="simplelinear" class="content-section">
             <h2>Simple Linear Regression</h2>
             <p>Content for Simple Linear Regression module goes here.</p>
@@ -101,7 +87,7 @@
 
         <div id="statinflinearreg" class="content-section">
             <h2>Stat Inference for Linear Regression</h2>
-            <p>Content for Stat Inference for Linear Regression module goes here.</p>
+            <p>Content for Statistical Inference for Linear Regression goes here.</p>
         </div>
 
         <div id="mulreg" class="content-section">
@@ -135,47 +121,26 @@
         </div>
 
         <div id="modeval" class="content-section">
-            <h2>Model Evaluation and Selection References</h2>
-            <p>Content for Model Evaluation and Selection References module goes here.</p>
+            <h2>Model Evaluation and Selection</h2>
+            <p>Content for Model Evaluation and Selection module goes here.</p>
         </div>
 
-        <!-- Book Notes -->
         <div id="relevantbook" class="content-section">
             <h2>Relevant Book Notes</h2>
             <p>Content for book notes goes here.</p>
         </div>
 
-        <!-- YouTube Videos -->
         <div id="videos" class="content-section">
             <h2>Relevant YouTube Videos</h2>
-            <p>Content for YouTube videos goes here.</p>
+            <!-- Placeholder for embedded videos -->
+            <iframe width="560" height="315" src="https://www.youtube.com/embed/example" title="Video title" frameborder="0" allowfullscreen></iframe>
         </div>
 
-        <!-- Additional Coding Examples -->
         <div id="examples" class="content-section">
             <h2>Additional Coding Examples</h2>
             <p>Content for additional coding examples goes here.</p>
         </div>
     </div>
 
-    <script>
-        // JavaScript to handle navigation
-        const links = document.querySelectorAll('.dropdown-content a');
-        const contentDivs = document.querySelectorAll('#content > .content-section');
-
-        links.forEach(link => {
-            link.addEventListener('click', function(e) {
-                e.preventDefault();
-                const targetId = this.getAttribute('href').substring(1);
-                contentDivs.forEach(div => div.style.display = 'none');
-                document.getElementById(targetId).style.display = 'block';
-            });
-        });
-
-        // Load section based on URL hash or set a default section
-        const defaultSectionId = window.location.hash ? window.location.hash.substring(1) : 'home';
-        contentDivs.forEach(div => div.style.display = 'none');
-        document.getElementById(defaultSectionId).style.display = 'block';
-    </script>
 </body>
 </html>
