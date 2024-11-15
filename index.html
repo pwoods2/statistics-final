@@ -152,5 +152,34 @@
         </div>
     </div>
 
+    
+    <script>
+        // JavaScript to handle navigation
+        const links = document.querySelectorAll('.dropdown-content a');
+        const contentSections = document.querySelectorAll('.content-section');
+
+        function showSection(targetId) {
+            contentSections.forEach(section => {
+                if (section.id === targetId) {
+                    section.style.display = 'block';
+                } else {
+                    section.style.display = 'none';
+                }
+            });
+        }
+
+        links.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                showSection(targetId);
+            });
+        });
+
+        // Load section based on URL hash or set default
+        const defaultSection = window.location.hash ? window.location.hash.substring(1) : 'home';
+        showSection(defaultSection);
+    </script>
+    
 </body>
 </html>
