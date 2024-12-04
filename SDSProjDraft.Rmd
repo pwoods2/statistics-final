@@ -1,10 +1,112 @@
 # Load all the necessary libraries
+
+```{r}
 library(ggplot2)
 library(dplyr)
+library(tidyverse)
+```
 
 # Add the data
-library(mosaicData)
-data(Gestation)
 
-##**Need this first
-gestation_lm <- lm
+```{r}
+install.packages(mosaicData)
+library(mosaicData) 
+data(Gestation)
+```
+
+# Cleaning the data
+
+This section included the filtration of the data to remove NA values and selection of the columns from the data set that will be used in the hypotheses
+
+```{r}
+Gestation_edits <- select(Gestation, gestation, age, parity, dht, wt) %>%
+  filter(
+    !is.na(age),
+    !is.na(gestation),
+    !is.na(parity),
+    !is.na(dht),
+    !is.na(wt),
+  )
+```
+
+# Introduction of Data
+
+words about the data go here!
+
+# Hypotheses
+
+## Hypothesis 1:
+
+H1: The `age` of the mother impacts the `gestation` period.\
+H0: The `age` of the mother does not impact the `gestation` period.
+
+## Hypothesis 2:
+
+H2: Smoking status "`smoke`" impacts the `gestation` period.\
+H0: Smoking status "`smoke`" does not impact the `gestation` period.
+
+## Hypothesis 3:
+
+H3: `Gestation` period impacts birth weight "`wt`".\
+H0: `Gestation` period does not impact birth weight "`wt`".
+
+# Visualizations
+
+## Visualization 1 - Maternal Age vs Gestation Period
+
+```{r}
+ggplot(Gestation_edits, aes(x = age, y = gestation)) + 
+  geom_point() +
+  labs(
+    title = "Maternal Age vs Gestation",
+    x = "Maternal Age (years)",
+    y = "Gestation Period (days)"
+  ) +
+  theme_classic(
+  )
+```
+
+## Visualization 2 - Smoking Status vs Gestation Period
+
+```{r}
+ggplot(Gestation_edits, aes(x = smoke, y = gestation)) + 
+  geom_boxplot() +
+  labs(
+    title = "Gestation Period vs Smoking Status",
+    x = "Smoking Status",
+    y = "Gestation period (days)"
+  ) +
+  theme_classic(
+  )
+```
+
+## Visualization 3 - Gestation Period vs Birth Weight
+
+```{r}
+ggplot(Gestation_edits, aes(x = gestation, y = wt)) + 
+  geom_point() +
+  labs(
+    title = "Gestation Period vs Birth Weight",
+    x = "Gestation Period (days)",
+    y = "Birth Weight (oz)"
+  ) +
+  theme_classic(
+  )
+```
+
+# Fitting the Model
+
+```{r}
+gestation_lm <- lm(gestation ~ wt + smoke + age, data = Gestation)
+summary(gestation_lm)
+```
+
+# Improving the Model
+
+# Testing Your Hypotheses
+
+# Assessing Conclusions
+
+# Automatic Model Selection
+
+# Conclusions
