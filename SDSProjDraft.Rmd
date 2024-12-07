@@ -97,11 +97,29 @@ ggplot(Gestation_edits, aes(x = gestation, y = wt)) +
 # Fitting the Model
 
 ```{r}
-gestation_lm <- lm(gestation ~ wt + smoke + age, data = Gestation)
+gestation_lm <- lm(gestation ~ wt + smoke + age, data = Gestation_edits)
 summary(gestation_lm)
+autoplot(gestation_lm)
 ```
 
 # Improving the Model
+
+##Log
+Gestation$logexp <- log(Gestation$gestation)
+Gestation_log_lm <- lm(logexp ~ age + wt + smoke, data = Gestation)
+
+autoplot(Gestation_log_lm)
+
+##Sqrt
+Gestation_edits$sqrt_gestation <- sqrt(Gestation_edits$gestation)
+
+# Fit the model with square root transformed gestation
+gestation_lm_sqrt <- lm(sqrt_gestation ~ wt + smoke + age, data = Gestation_edits)
+summary(gestation_lm_sqrt)
+
+autoplot(gestation_lm_sqrt)
+
+##ELP- trying to take the upper and lower and fiting the model but i keep getting error
 
 # Testing Your Hypotheses
 
