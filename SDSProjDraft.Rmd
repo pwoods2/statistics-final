@@ -123,7 +123,95 @@ autoplot(gestation_lm_sqrt)
 
 # Testing Your Hypotheses
 
+## Hypothesis 1:
+
+H1: The `age` of the mother impacts the `gestation` period.\
+H0: The `age` of the mother does not impact the `gestation` period.
+
+## Hypothesis 2:
+
+H2: Smoking status "`smoke`" impacts the `gestation` period.\
+H0: Smoking status "`smoke`" does not impact the `gestation` period.
+
+## Hypothesis 3:
+
+H3: `Gestation` period impacts birth weight "`wt`".\
+H0: `Gestation` period does not impact birth weight "`wt`".
+
+## Hypothesis 1
+
+# Fit the model
+model_age <- lm(gestation ~ age, data = Gestation_edits)
+
+# Summary of the model
+summary(model_age)
+
+# ANOVA test
+anova(model_age)
+
+# Drop1 test
+drop1(model_age, test = "F")
+
+## Hypothesis 2
+
+# Fit the model
+model_smoke <- lm(gestation ~ smoke, data = Gestation_edits)
+
+# Summary of the model
+summary(model_smoke)
+
+# ANOVA test
+anova(model_smoke)
+
+# Drop1 test
+drop1(model_smoke, test = "F")
+
+## Hypothesis 3
+
+# Fit the model
+model_wt <- lm(gestation ~ wt, data = Gestation_edits)
+
+# Summary of the model
+summary(model_wt)
+
+# ANOVA test
+anova(model_wt)
+
+# Drop1 test
+drop1(model_wt, test = "F")
+
 # Assessing Conclusions
+
+#Revisit autoplot:
+
+#Check for influential points:
+# Load necessary library
+library(ggfortify)
+
+# Fit the model
+model <- lm(gestation ~ wt + smoke + age, data = Gestation_edits)
+
+# Diagnostic plots
+autoplot(model)
+
+# Identify influential points
+influential_points <- which(cooks.distance(model) > (4 / nrow(Gestation_edits)))
+
+# Remove influential points
+Gestation_no_influential <- Gestation_edits[-influential_points, ]
+
+# Refit the model without influential points
+model_no_influential <- lm(gestation ~ wt + smoke + age, data = Gestation_no_influential)
+summary(model_no_influential)
+
+autoplot(model_no_influential)
+
+#Issues with multicollinearity? IDK Queen
+# Load necessary library
+library(car)
+
+# Compute VIF
+vif(model)
 
 # Automatic Model Selection
 
