@@ -91,5 +91,67 @@ ggplot(Gestation_edits, aes(x = smoke, y = gestation)) +
   )
 
 # fitting the model
-gestation_lm <- lm(gestation ~ wt + smoke + age, data = Gestation)
+library(ggfortify)
+gestation_lm <- lm(gestation ~ wt + smoke + age, data = Gestation_edits)
 summary(gestation_lm)
+
+autoplot(gestation_lm)
+hist(residuals(gestation_lm))
+shapiro.test(Gestation$gestation)
+#p value is small so fail- Q-Q plot violated
+
+# Improving the model
+# try and take lower (didnt work)
+hist(residuals(gestation_lm))
+
+hist((Gestation$gestation), xlab = "Gestation Period")
+hist(sqrt(Gestation$gestation), xlab = "Gestation Period")
+hist(log(Gestation$gestation), xlab = "Gestation Period")
+
+## Make log Gestation Period - this works! just talk about the outliers
+Gestation$logexp <- log(Gestation$gestation)
+Gestation_log_lm <- lm(logexp ~ age + wt + smoke, data = Gestation)
+
+autoplot(Gestation_log_lm)
+
+#Just explain i tried and didn't really work
+
+
+
+
+
+
+#5#
+model <- lm(gestation ~ wt, data = Gestation_edits)
+
+# Summary of the model
+summary(model)
+
+# ANOVA test (1)
+anova(model)
+
+# Drop1 test
+drop1(model, test = "F")
+
+##Both of these p-cales are small, which means 
+
+
+#6#
+# Load necessary library
+library(ggfortify)
+
+# Fit the model
+model <- lm(gestation ~ wt + smoke + age, data = Gestation_edits)
+
+# Diagnostic plots
+autoplot(model)
+
+# Identify influential points
+influential_points <- which(cooks.distance(model) > (4 / nrow(Gestation_edits)))
+
+# Remove influential points
+Gestation_no_influential <- Gestation_edits[-influential_points, ]
+
+# Refit the model without influential points
+model_no_influential <- lm(gestation ~ wt + smoke + age, data = Gestation_no_influential)
+summary(model_no_influential)
