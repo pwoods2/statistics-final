@@ -35,7 +35,7 @@ The data was sourced from the mosaicData package, which provides datasets for te
 
 #### **Observations**
 
-The dataset contains 1,236 observations (rows). After cleaning the data to remove rows with missing values, we have a subset of 727 observations.
+In our initial analysis of the dataset, we had 1,236 observations (rows), but discovered some missing data for key variables, particularly in parental height and smoking status. To address this, we removed them from the set, ensuring our results would not be biased and leaving us with a remainder of 727 observations. 
 
 #### **Interest**
 
@@ -474,7 +474,7 @@ step_model <- step(gestation_log_bs_lm, direction = "both")
 summary(step_model)
 ```
 
--   We chose to use the all-subsets model selection. This technique identified that a spline transformation of log(wt) and the variable parity were the most important predictors for the outcome log(gestation), optimizing the model based on the AIC criterion. The AIC was -4411.4.
+-   We chose to use the all-subsets model selection. This technique identified that a spline transformation of log(wt) and the variable parity were the most important predictors for the outcome log(gestation). Optimizing the model based on the AIC criterion, predictors were added to the model based on their statistical significance and contributions to reducing the AIC, and removed if they were indicated to not improving the model. The AIC for the model log(wt) and parity was -4406.08, the lowest value, making it the most effective in explaining gestation length. 
 
 #### Limitations of automatic model selection
 
