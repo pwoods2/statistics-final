@@ -1,0 +1,503 @@
+---
+title: "SDS324E Project"
+format: html
+editor: visual
+Authors: Sierra Taylor and London Whitney
+---
+
+## Introduction
+
+#### **Dataset Introduction**
+
+The dataset used for this analysis is the Gestation dataset from the mosaicData package in R. This dataset contains information on various factors related to pregnancy and birth outcomes.
+
+#### **Variables**
+
+-   Outcome Variable:
+
+    -   Gestation Period (gestation): This is a numeric variable representing the length of the gestation period in days.
+
+-   Predictors:
+
+    -   Maternal Age (age): Numeric variable representing the age of the mother in years.
+
+    -   Birth Weight (wt): Numeric variable representing the birth weight of the baby in ounces.
+
+    -   Smoking Status (smoke): Categorical variable indicating the smoking status of the mother (e.g., "never" (336 observations), "now" (263 observations), "once did, not now", (67 observations) "until current pregnancy" (61 observations).
+
+    -   Parity (parity): Numeric variable representing the number of previous pregnancies.
+
+    -   Father's Height (dht): Numeric variable representing the height of the father in inches.
+
+#### **Data Source**
+
+The data was sourced from the mosaicData package, which provides datasets for teaching and learning statistics. This must be downloaded manually from the packages tab and installed. 
+
+#### **Observations**
+
+The dataset contains 1,236 observations (rows). After cleaning the data to remove rows with missing values, we have a subset of 727 observations.
+
+#### **Interest**
+
+This dataset is particularly interesting to me because it relates to my major. I am a Human development and Family Science Major, which allows us to explore the relationships between various maternal and paternal factors and the gestation period. Understanding these relationships can provide insights into factors that influence pregnancy outcomes, which is valuable for public health and medical research.
+
+## Research Questions
+
+Hypothesis 1: Higher maternal age is associated with a shorter gestation period.
+
+Hypothesis 2: Smoking during pregnancy is associated with a shorter gestation period.
+
+Hypothesis 3: Higher birth weight is associated with a longer gestation period.
+
+## Data Exploration
+
+```{r}
+## Packages 
+mosaicData <- read.csv("https://vincentarelbundock.github.io/Rdatasets/csv/mosaicData/Gestation.csv")
+
+library(mosaicData)
+data(Gestation)
+
+library(dplyr)
+library(tidyverse)
+library(ggfortify)
+library(ggplot2)
+library(splines)
+library(car)
+library(boot)
+
+# Cleaning the data
+Gestation_edits <- select(Gestation, marital, gestation, age, parity, dht, wt, smoke) %>%
+  filter(
+    !is.na(age),
+    !is.na(gestation),
+    !is.na(parity),
+    !is.na(dht),
+    !is.na(wt),
+    !is.na(marital),
+    !is.na(smoke)
+  )
+```
+
+```{r}
+## Exploring the Data
+
+# 1. Age
+ggplot(Gestation_edits, aes(x = age, y = gestation)) + 
+  geom_point() +
+  geom_smooth(method = "lm", color = "pink") +
+  labs(
+    title = "Maternal Age vs Gestation Period",
+    x = "Maternal Age (years)",
+    y = "Gestation period (days)"
+  ) +
+  theme_classic(
+  )
+
+# 2. Birth weight 
+ggplot(Gestation_edits, aes(x = wt, y = gestation)) + 
+  geom_point() +
+    geom_smooth(method = "lm", color = "yellow") +
+  labs(
+    title = "Birth Weight vs. Gestation Period",
+    x = "Birth Weight (oz)",
+    y = "Gestation Period (days)"
+  ) +
+  theme_classic(
+  )
+
+# 3. Smoking
+ggplot(Gestation_edits, aes(x = smoke, y = gestation)) + 
+  geom_boxplot() +
+  labs(
+    title = "Smoking Status vs. Gestation Period",
+    x = "Smoking Status",
+    y = "Gestation period (days)"
+  ) +
+  theme_classic(
+  )
+
+# 4. Parity
+ggplot(Gestation_edits, aes(x = parity, y = gestation)) + 
+geom_point() +
+    geom_smooth(method = "lm", color = "lightgreen") +
+  labs(
+    title = "Parity Status vs. Gestation Period",
+    x = "Parity Status",
+    y = "Gestation period (days)"
+  )
+
+# 5. Paternal Height
+ggplot(Gestation_edits, aes(x = dht, y = gestation)) + 
+  geom_point() +
+  geom_smooth(method = "lm", color = "lavender") +
+  labs(
+    title = "Paternal Height vs. Gestation Period",
+    x = "Paternal Height",
+    y = "Gestation period (days)"
+  )
+```
+
+-   Based on the visualizations and statistical analysis, birth weight (wt), which appears in the second scatterplot, appears to be the predictor most highly correlated with the gestation period. The scatterplot of gestation period versus birth weight shows a clear positive trend, indicating that as birth weight increases, the gestation period tends to be longer. This relationship is supported by the linear regression model, where the coefficient for birth weight is positive and highly significant (p-value \< 2e-16).
+
+## Multiple Linear Regression Model
+
+```{r}
+gestation_lm <- lm(gestation ~ wt + smoke + age + parity + dht, data = Gestation_edits)
+summary(gestation_lm)
+```
+
+### Interpreting the coefficients
+
+-   The intercept is the estimated gestation time in days when all of the predictors are at their baseline levels, which includes the variable 'never smoked'. The estimated gestation time is 262.318.
+
+-   For every one-ounce increase in weight, gestation time increases by 0.352 days on average. This variable is numeric.
+
+-   For every one-unit increase in the "smoke now" category, gestation time increases by 1.026 days on average. This variable is categorical.
+
+-   For every one-unit increase in the "smoke did, not now" category, gestation time decreases by 0.943 days on average. This variable is categorical.
+
+-   For every one-unit increase in the "smoke until current pregnancy" category, gestation time decreases by 0.441 days on average. This variable is categorical.
+
+-   For each one-year increase in age, gestation time decreases by 0.101 days on average. This variable is numeric.
+
+-   For each additional pregnancy (parity), there is an average decrease of 0.605 days in gestation time. This variable is numeric.
+
+-   For every one-inch increase in paternal height (dht), gestation time decreases by an average of 0.303 days. This variable is numeric.
+
+-   These findings suggest that while some factors like weight and smoking may slightly increase gestation time, other factors like age, parity, and paternal height are linked to shorter gestation periods. The smoking categories show mixed effects, with current smokers having longer gestation periods, but those who have smoked in the past or throughout pregnancy having shorter ones. However, the only significant predictor for gestation is weight.
+
+### F-test
+
+-   Null Hypothesis H0: All regression coefficients are equal to zero (no relationship between predictors and outcome).
+
+-   Alternative Hypothesis H1: At least one regression coefficient is not equal to zero.
+
+-   Conclusion: Given the p-value is \< 2.2e-16 and the F-Statistic 22.5, we reject the null hypothesis, indicating that our model is significant.
+
+### Interpreting the multiple $R^2$
+
+-   The Multiple R² value of 0.1797 roughly indicates that approximately 17.97% of the variability in the gestation period can be explained by the predictors in the model (birth weight (wt), smoking status (smoke), paternal height (dht), and maternal age (age). This means that while the model does capture some of the relationship between these predictors and the gestation period, a large portion of the variability (about 82.03%) is still unexplained by the model. In other words, there are other factors not included in the model that also influence the gestation period.
+
+### Interpreting the residual standard error
+
+-   On average, the predicted gestation periods are off by about 13.83 days from the actual gestation periods. Given that a typical gestation period is around 280 days, this error represents approximately 5% of the total duration. Considering the complexity of the model and the multiple variables influencing the gestation period, this level of error is reasonable. Therefore, it is acceptable to conclude that the predicted values are generally close to the actual outcomes.
+
+## Improving the Model
+
+### Diagnostic plots
+
+```{r}
+# Diagnostic plots
+autoplot(gestation_lm)
+```
+
+-   Looking at the diagnostic plots, the errors are zero on average and have constant variance, though with a few outliers. However, the errors are not normally distributed, deviating at the tails. To counteract these violations, we used log and spines to transform the outcome (gestation), and predictors (age, birth weight, parity, parents height, and smoke).
+
+### Diagnostic plots with Log Transformation
+
+```{r}
+# Log transformations
+gestation_log_lm <- lm(log(gestation) ~ log(wt) + smoke + log(age) + parity + log(dht), data = Gestation_edits)
+autoplot(gestation_log_lm)
+```
+
+-   We utilized log transformations on the outcome and some of the predictors to try and better meet the assumptions, with only minimal improvement.\
+
+### Diagnostic plots with Log Transformation and Splines
+
+```{r}
+# Spline transformation
+gestation_log_bs_lm <- lm(log(gestation) ~ bs(log(wt), df = 4) + smoke + bs(log(age), df = 4) + parity + bs(log(dht), df = 4), data = Gestation_edits)
+autoplot(gestation_log_bs_lm)
+```
+
+-   We then used splines on the same variables that we performed log transformations on, with quite significant improvement this time, especially on our residuals vs. fitted plot. Due to this, we can conclude that using log transformations in combination with splines somewhat fixed the diagnostic plots and helped better meet our assumptions – particularly the ones regarding linearity and homoscedasticity.
+
+### Testing an Interaction
+
+-   We hypothesized that there would be an interaction between birth weight (wt) and smoking status (smoke) on the gestation period. Specifically, we wanted to test whether the effect of birth weight on gestation period varies depending on the smoking status of the mother.
+
+```{r}
+# Interaction
+gestation_log_bs_interaction_lm <- lm(log(gestation) ~ bs(log(wt), df = 4) * smoke + bs(log(age), df = 4) + parity + bs(log(dht), df = 4), data = Gestation_edits)
+summary(gestation_log_bs_interaction_lm)
+autoplot(gestation_log_bs_interaction_lm)
+```
+
+-   Based on these results, we concluded that the interaction between birth weight and smoking status is not justified by the data. The coefficients for the interaction terms were not significantly different from zero, suggesting that the relationship between birth weight and gestation period does not vary significantly with smoking status. Therefore, we decided not to include the interaction term in our final model. This decision was made to maintain model simplicity and avoid overfitting, given that the interaction terms did not provide additional explanatory power.
+
+### Summary of the Improved Model
+
+```{r}
+# Improved Model Summmary
+summary(gestation_log_bs_lm)
+
+#Exponentiating Coefficients 
+exp(5.2786621)
+exp(0.2239463)
+exp(0.0030834)
+exp(0.0028263)
+exp(0.0001022)
+exp(0.0884276)
+exp(0.0011319)
+exp(0.0040986)
+```
+
+### Interpreting the coefficients of the improved model
+
+-   The intercept is the estimated gestation time in days when all of the predictors are at their baseline levels, which includes the variable 'never smoked'. The estimated gestation time is 196.107 days on average, based on the exponentiated coefficient from the model's log transformation.
+
+-   For every one-ounce increase in weight, gestation time is multiplied by 1.251 on average under the model's log transformation. This variable is numeric.
+
+-   For every one-unit increase in the "smoke now" category, gestation time is multiplied by 1.003 on average, based on the exponentiated coefficient from the model's log transformation. This variable is categorical.
+
+-   For every one-unit increase in the "smoke did, not now" category, gestation time is multiplied by 1.003 on average, based on the exponentiated coefficient from the model's log transformation. This variable is categorical.
+
+-   For every one-unit increase in the "smoke until current pregnancy" category, gestation time is multiplied by 1.000 on average, based on the exponentiated coefficient from the model's log transformation. This variable is categorical.
+
+-   For each one-year increase in age, gestation time is multiplied by 1.092 on average, based on the exponentiated coefficient from the model's log transformation. This variable is numeric.
+
+-   For each additional pregnancy (parity), gestation time is multiplied by 1.001 on average, based on the exponentiated coefficient from the model's log transformation. This variable is numeric.
+
+-   For every one-inch increase in paternal height (dht), gestation time is multiplied by 1.004, based on the exponentiated coefficient from the model's log transformation. This variable is numeric.
+
+-   These findings suggest that while some factors like weight and smoking may slightly increase gestation time, other factors like age, parity, and paternal height are linked to shorter gestation periods. The smoking categories show mixed effects, with current smokers having longer gestation periods, but those who have smoked in the past or throughout pregnancy having shorter ones. However, the only significant predictor for gestation is weight.
+
+### F-test of the improved model
+
+-   Null Hypothesis H0: All regression coefficients are equal to zero (no relationship between predictors and outcome).
+
+-   Alternative Hypothesis H1: At least one regression coefficient is not equal to zero.
+
+-   Conclusion: Given the p-value is \< 2.2e-16 and the F-Statistic 15.75, we reject the null hypothesis, indicating that our model is significant.
+
+### Interpreting the multiple $R^2$ of the improved model
+
+-   The Multiple R² value of 0.2623 roughly indicates that approximately 26.23% of the variability in the gestation period can be explained by the predictors in the model (birth weight (wt), smoking status (smoke), paternal height (dht), and maternal age (age). This means that while the model does capture some of the relationship between these predictors and the gestation period, approximately a fourth of the variability (about 73.77%) is still unexplained by the model. In other words, there are other factors not included in the model that also influence the gestation period.
+
+### Interpreting the residual standard error of the improved model
+
+-   On average, the predicted gestation periods are off by about 0.04794 days from the actual gestation periods. Given that a typical gestation period is around 280 days, this error is very small. Therefore, it is acceptable to conclude that the predicted values are extremely close to the actual outcomes.
+
+## Formal Hypothesis Tests
+
+### Formal Hypotheses
+
+#### Hypothesis 1: Impact of Gestation Period on Maternal Age
+
+-   Null Hypothesis (H0): The coefficient for maternal age in the regression model is equal to zero, indicating that maternal age does not significantly impact the gestation period, given that all other predictors are in the model.
+
+    $$
+    ( H_0: \beta_{\text{age}} = 0 )
+    $$
+
+<!-- -->
+
+-   Alternative Hypothesis (H1): The coefficient for maternal age in the regression model is not equal to zero, indicating that maternal age significantly impacts the gestation period, given that all other predictors are in the model.
+
+    $$
+    ( H_1: \beta_{\text{age}} \neq 0 )
+    $$
+
+#### Hypothesis 2: Impact of Gestation Period on Smoking Status
+
+-   Null Hypothesis (H0): The coefficients for smoking status in the regression model are equal to zero, indicating that smoking status does not significantly impact the gestation period, given that all other predictors are in the model.
+
+$$
+( H_0: \beta_{\text{smoke}} = 0 )
+$$
+
+-   Alternative Hypothesis (H1): The coefficients for smoking status in the regression model are not equal to zero, indicating that smoking status significantly impacts the gestation period, given that all other predictors are in the model.
+
+$$
+( H_1: \beta_{\text{smoke}} \neq 0 )
+$$
+
+#### Hypothesis 3: Impact of Birth Weight on Gestation Period
+
+Null Hypothesis (H0): The coefficient for birth weight in the regression model is equal to zero, indicating that birth weight does not significantly impact the gestation period, given that all other predictors are in the model.
+
+$$
+( H_0: \beta_{\text{wt}} = 0 )
+$$
+
+Alternative Hypothesis (H1): The coefficient for birth weight in the regression model is not equal to zero, indicating that birth weight significantly impacts the gestation period, given that all other predictors are in the model.
+
+$$
+( H_1: \beta_{\text{wt}} \neq 0 )
+$$
+
+### Anova Test
+
+```{r}
+## Anova Test
+hypotheses <- lm(log(gestation) ~ bs(log(wt), df = 4) + smoke + bs(log(age), df = 4), data = Gestation_edits)
+anova(hypotheses)
+```
+
+-   Based on our ANOVA test, birth weight is the only significant factor in predicting gestation period as our f-value is 59.69 with a p-value of 2e-16, which is essentially zero. Age has an f-value of 0.26 and p-value of 0.85072, and smoke has a f-value of 1.97 and p-value of 0.09775, which are both above the 0.05 cutoff. Therefore, we can conclude age and smoking are insignificant predictors of gestation period.
+
+### Drop1 Tests
+
+#### Hypothesis 1:
+
+```{r}
+## Hypothesis 1
+model_age <- lm(log(gestation) ~ bs(log(age), df = 4), data = Gestation_edits)
+summary(model_age)
+drop1(model_age, test = "F")
+```
+
+-   Based on our drop1 test, age is not a significant factor in predicting gestation period, as our f-value is 1.532 with a p-value of 0.1911, which is above the 0.05 cutoff. Therefore, we can determine that there is no relationship between age and the duration of a gestation period.
+
+#### Hypothesis 2:
+
+```{r}
+## Hypothesis 2
+model_smoke <- lm(log(gestation) ~ smoke, data = Gestation_edits)
+summary(model_smoke)
+drop1(model_smoke, test = "F")
+```
+
+-   Based on our drop 1 test, smoke is not a significant factor in predicting gestation period, as our f-value is 1.11 with a p-value of 0.3442, which is above the 0.05 cutoff. Therefore, we can determine that there is no relationship between smoking status and the duration of a gestation period.
+
+#### Hypothesis 3:
+
+```{r}
+## Hypothesis 3
+model_wt <- lm(log(gestation) ~ bs(log(wt), df = 4), data = Gestation_edits)
+summary(model_wt)
+drop1(model_wt, test = "F")
+```
+
+-   Based on our drop1 test, birth weight is a significant factor in predicting gestation period, as our f-value is 59.56 with a p-value of 2.2e-16, which is essentially zero. Due to the p-value being less than alpha (0.05), we can determine that there is a relationship between birth weight and the duration of a gestation period.
+
+### Results of Hypothesis Tests
+
+-   The results of our drop1 and ANOVA tests support only one of our hypotheses: that higher birth weight is associated with a longer gestation period. However, our analysis does not support the other two hypotheses: that higher maternal age is associated with a shorter gestation period, and that smoking is associated with a shorter gestation period.
+
+### Limitations
+
+-   Sample Size: The sample size may not be large enough to detect small effects, especially for variables like smoking status and maternal age.
+
+-   Data Quality: Missing values and potential measurement errors could affect the results.
+
+    -   Additionally, when interpreting human-based data, it is essential to consider the significant individual physical differences among subjects. Given that our data examines gestation and other physical factors, it is challenging to accurately assess the effect of certain variables due to the wide range of biological variations, especially with our limited sample size.
+
+-   Model Assumptions: Assumptions of linear regression (e.g., normality, homoscedasticity) may not be fully met, which could impact the validity of the conclusions.
+
+## Robustness of Results
+
+### Assessing influential points
+
+```{r}
+# Original Diagnostics Plot
+autoplot(gestation_log_bs_lm)
+
+# Removing Influential Points and Refitting the Model
+influential_points <- which(cooks.distance(gestation_log_bs_interaction_lm) > (4 / nrow(Gestation_edits)))
+
+Gestation_no_influential <- Gestation_edits[-influential_points, ]
+
+model_no_influential <- lm(log(gestation) ~ bs(log(wt), df = 4) + smoke + bs(log(age), df = 4) + parity + bs(log(dht), df = 4), data = Gestation_no_influential)
+
+summary(model_no_influential)
+autoplot(model_no_influential)
+```
+
+-   We observe influential points in the diagnostics plot of our original improved model, specifically at points 674, 696, 440, and 519, where high leverage is apparent. High leverage could be attributed to several factors, including outliers in one of the response variables, potential collinearity between predictor variables, and the relatively limited sample size in our dataset compared to the general population.
+
+-   When deleting these observations from our results, not much change occurs. Our model summary still shows that weight is the sole significant predictor of gestation time, and our diagnostic plots stay nearly the same.
+
+### Multicollinearity
+
+```{r}
+# Multicollinearity
+vif(gestation_log_bs_lm)
+```
+
+-   All VIF values are below 5, indicating that multicollinearity is not a significant issue in our model.
+
+### Cross-validation estimating the leave-one-out prediction error
+
+```{r}
+# Cross-validation Estimating LOO
+n <- nrow(Gestation_edits)  # Total number of rows in the dataset
+errors <- numeric(n)        # Initialize a numeric vector to store errors
+
+for (i in 1:n) {
+  # Split data into training and testing sets
+  train_data <- Gestation_edits[-i, ]  # Exclude the i-th observation for training
+  test_data <- Gestation_edits[i, , drop = FALSE]  # Single observation for testing
+  
+  # Fit the model on training data
+  gestation_log_bs_lm <- lm(
+    log(gestation) ~ 
+      bs(log(wt), df = 4, Boundary.knots = range(log(Gestation_edits$wt))) + 
+      smoke + 
+      bs(log(age), df = 4, Boundary.knots = range(log(Gestation_edits$age))) + 
+      parity + 
+      bs(log(dht), df = 4, Boundary.knots = range(log(Gestation_edits$dht))),
+    data = train_data
+  )
+  
+  # Predict the left-out observation
+  predicted <- predict(gestation_log_bs_lm, newdata = test_data)
+  
+  # Calculate squared error for the left-out observation
+  errors[i] <- (log(test_data$gestation) - predicted)^2
+}
+
+# Compute the LOOCV Mean Squared Error (MSE)
+loocv_mse <- mean(errors)
+cat("LOOCV Prediction Error (MSE):", loocv_mse, "\n")
+
+# Check for model overfitting by comparing training MSE
+train_predictions <- predict(gestation_log_bs_lm, newdata = Gestation_edits)
+
+
+train_mse <- mean((log(Gestation_edits$gestation) - train_predictions)^2)
+cat("Training MSE:", train_mse, "\n")
+
+
+```
+
+-   The low MSE value of approximately 0.002370557 indicates that the model has good predictive performance and generalizes well to new data.
+
+-   The training MSE (0.002246737) is quite close to the Leave One Out Cross-Validation MSE (0.002370557), suggesting that the model is not over-fitting. The model performs extremely similarly on both the training data and the leave-one-out validation, indicating good generalizability.
+
+### Automatic Model Selection
+
+```{r}
+step_model <- step(gestation_log_bs_lm, direction = "both")
+summary(step_model)
+```
+
+-   We chose to use the all-subsets model selection. This technique identified that a spline transformation of log(wt) and the variable parity were the most important predictors for the outcome log(gestation), optimizing the model based on the AIC criterion. The AIC was -4411.4.
+
+#### Limitations of automatic model selection
+
+-   Over-fitting: Automatic model selection methods, like stepwise selection, can lead to over-fitting, especially with small datasets. The selected model might fit the training data well but perform poorly on new data.
+
+-   Ignoring Multicollinearity: These methods do not account for multicollinearity between predictors, which can inflate the variance of coefficient estimates and make the model unstable.
+
+-   Model Interpretability: The selected model might exclude important predictors that have theoretical or practical significance, leading to a model that is less interpretable or useful
+
+#### P-values
+
+-   The p-values obtained from the final model can be misleading because the selection process inflates the Type I error rate (the probability of incorrectly rejecting a true null hypothesis).
+
+## Conclusions
+
+-   Throughout this analysis, we explored several hypotheses about factors influencing gestation periods. Many of these hypotheses align with common knowledge, such as the general belief that smoking is harmful during pregnancy, longer gestation leads to larger babies, and maternal age affects pregnancy outcomes.
+
+    From the analysis, the relationship between birth weight and duration of the gestation period were significant, supporting existing knowledge about the impact of these factors on pregnancy. However, an unexpected finding was the lack of a significant effect of smoking on the gestation period. This challenges common societal beliefs that smoking has a pronounced effect on pregnancy duration. While smoking is widely regarded as detrimental to pregnancy in general, it may not have the same impact on gestation period in this particular dataset. This could suggest that other factors in the dataset, such as maternal health, lifestyle, or socio-economic conditions, might be playing a more influential role.
+
+#### Future research avenues
+
+-   Given the unexpected results regarding smoking, future research could explore the potential interaction effects between different predictors, such as the combination of maternal age and smoking status. It may be that the effects of smoking are moderated or compounded by other factors, which were not fully captured in the current model. Additionally, further investigation could examine longitudinal data to understand how smoking affects pregnancy over time, as well as explore other maternal health indicators (e.g., nutrition, stress levels) that may have a more significant impact on gestation.
+
+-   Additionally, exploring non-linear relationships or more complex models (e.g., machine learning techniques) could provide deeper insights into the complex interactions between maternal health, lifestyle, and gestation periods. These future investigations could enhance the understanding of pregnancy outcomes and inform better public health guidelines.
+
+    \
