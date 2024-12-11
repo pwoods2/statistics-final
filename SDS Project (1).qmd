@@ -2,7 +2,7 @@
 title: "SDS324E Project"
 format: html
 editor: visual
-Authors: Sierra Taylor and London Whitney
+Authors: Sierra Taylor 
 ---
 
 ## Introduction
