@@ -39,7 +39,7 @@ The dataset contains 1,236 observations (rows). After cleaning the data to remov
 
 #### **Interest**
 
-This dataset is particularly interesting to me because it relates to my major. I am a Human development and Family Science Major, which allows us to explore the relationships between various maternal and paternal factors and the gestation period. Understanding these relationships can provide insights into factors that influence pregnancy outcomes, which is valuable for public health and medical research.
+This dataset is particularly interesting to me because it relates to my major. I am a Human Development and Family Sciences Major, which allows us to explore the relationships between various maternal and paternal factors and the gestation period. Understanding these relationships can provide insights into factors that influence pregnancy outcomes, which is valuable for public health and medical research.
 
 ## Research Questions
 
@@ -212,7 +212,7 @@ gestation_log_bs_lm <- lm(log(gestation) ~ bs(log(wt), df = 4) + smoke + bs(log(
 autoplot(gestation_log_bs_lm)
 ```
 
--   We then used splines on the same variables that we performed log transformations on, with quite significant improvement this time, especially on our residuals vs. fitted plot. Due to this, we can conclude that using log transformations in combination with splines somewhat fixed the diagnostic plots and helped better meet our assumptions – particularly the ones regarding linearity and homoscedasticity.
+-   We then used splines on the same variables that we performed log transformations on, with quite significant improvement this time, especially on our residuals vs. fitted plot. Due to this, we can conclude that using log transformations in combination with splines somewhat positively impacted the diagnostic plots and helped better meet our assumptions – particularly the ones regarding linearity and homoscedasticity.
 
 ### Testing an Interaction
 
